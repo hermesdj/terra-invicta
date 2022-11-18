@@ -1,0 +1,13 @@
+﻿UI.Army.Header=Armée
+UI.Army.Idle=Inactif
+UI.Army.InBattle=En combat
+UI.Army.Occupying=Occupe la région ({0})
+UI.Army.DeployDescription=Arrive le {1} dans la région : {0}
+UI.Army.AdviserBonus={0}+
+UI.Army.MegafaunaHomeNation=Xénofaune sauvage
+UI.Army.MegafaunaHomeNation1=Mégafaune apprivoisée
+UI.Army.OperationTarget=, Cible : {0}
+UI.Army.CompletionDate=, Date de fin : {0}
+UI.Army.AtSea=En mer
+UI.Army.AdviserTooltip=Les conseillers de cette nation fournissent un bonus de {0} au niveau de technologie de cette armée
+UI.Army.HabTooltip=Les modules des stations spatiales de la faction sur les orbites à proximité de la Terre fournissent un bonus de {0} au niveau de technologie de cette armée

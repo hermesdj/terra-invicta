@@ -1,7 +1,7 @@
-class Searchbox extends React.Component {
+﻿class Searchbox extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { results: [], showProjects: true };
+        this.state = { results: [], showProjects: true, selectedLang: 'fr', languages: [{value: 'fr', text: 'Francais'}, {value: 'en', text: 'English'}] };
     }
 
     componentDidMount() {
@@ -31,13 +31,15 @@ class Searchbox extends React.Component {
                     },
                     freeSolo: true,
                     onInputChange: (event, value) => {
-                        const results = documentSearchIndex.search(value, { pluck: "friendlyName", enrich: true }).map(result => result.doc.friendlyName);
+                        const results = documentSearchIndex.search(value, { pluck: "friendlyName", enrich: true }).map(result => {
+                            return {label: result.doc.friendlyName, id: result.doc.dataName};
+                        });
                         this.setState({ results: results });
                     },
                     onChange: (event, value) => {
                         showSidebar();
 
-                        let navigateToNode = techTree.find(tech => tech.friendlyName === value);
+                        let navigateToNode = techTree.find(tech => tech.dataName === value.id);
                         techSidebar.setState({ node: navigateToNode });
 
                         if (navigateToNode && network.body.nodes[navigateToNode.dataName]) {
@@ -69,6 +71,25 @@ class Searchbox extends React.Component {
                         }
                     ),
                     id: "showProjects"
+                }
+            ),
+            React.createElement(
+                MaterialUI.Select,
+                {
+                    defaultValue: selectedLang,
+                    native: true,
+                    children: this.state.languages.map(
+                        ({value, text}) => React.createElement('option', {
+                            value
+                        }, text)
+                    ),
+                    onChange: (event) => {
+                        const localSelectedLang = event.target.value;
+                        selectedLang = localSelectedLang;
+                        this.setState({ selectedLang });
+                        redraw();
+                    },
+                    id: 'selectLang'
                 }
             )
         )

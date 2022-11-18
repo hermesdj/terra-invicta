@@ -1,0 +1,16 @@
+﻿UI.Council.RecruitButton=Recruter
+UI.Council.CouncilNameCouncil=Conseil de : {0}       
+UI.Council.ReservedForTurned=Cet emplacement montrera un conseiller ennemi que nous avons rallié à notre cause.
+UI.Council.CouncilSize5=Nous devons développer le projet Cellules clandestines pour recruter un cinquième conseiller.
+UI.Council.CouncilSize6=Nous devons développer le projet Opérations secrètes pour recruter un sixième conseiller.
+UI.CouncilRecruiting.ConfirmRecruitDialog=Recruter {0} pour {1} ?  
+UI.Council.RecruitingHeader=Recrutement
+UI.CouncilView.UnknownObjective=Objectif inconnu
+UI.CouncilView.UndefinedVictoryCondition=Pas encore connue de la faction
+UI.Council.LeaderFullName={0} {1}             
+UI.Council.Candidates=Candidats
+UI.Council.RecruitCandidateButton=Recruter
+UI.Council.SellOrg=Vendre l'organisation
+UI.Council.PurchaseOrg=Acheter l'organisation
+UI.Council.EquipOrg=Rattacher l'organisation
+UI.Council.UnequipOrg=Détacher l'organisation

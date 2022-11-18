@@ -1,0 +1,45 @@
+{
+  "sidebar": {
+    "seeTreeForNode": "See Tree for this node",
+    "seeEntireTree": "See Entire Tree",
+    "markDone": "Mark Done",
+    "markUndone": "Mark Undone",
+    "summary": "Summary",
+    "cost": "Cost: ",
+    "totalTreeCost": "Total Tree Cost: ",
+    "resourceGranted": "Resource Granted: ",
+    "orgGranted": "Org granted: ",
+    "factionProject": "Faction Project",
+    "globalResearch": "Global Research",
+    "requiredResearch": "Required Research",
+    "unblockResearch": "Unblocks Research",
+    "milestoneNeeded": "Milestones Needed: ",
+    "onlyAvailableToFaction": "Only available to factions: ",
+    "requiredNations": "Required Nations: ",
+    "requiredControlPoints": "Required Control Points: ",
+    "effects": "Effects",
+    "completionText": "Completion Text"
+  },
+  "resources": {
+    "metalNoble": "Noble Metals",
+    "metal": "Metals",
+    "volatiles": "Volatiles",
+    "water": "Water",
+    "fissiles": "Fissiles",
+    "missionControl": "Mission Control"
+  },
+  "effects": {
+    "multiplicative": "multiplicative",
+    "additive": "additive"
+  },
+  "factions": {
+    "ResistCouncil": "The Resistance",
+    "DestroyCouncil": "Humanity First",
+    "ExploitCouncil": "The Initiative",
+    "EscapeCouncil": "Project Exodus",
+    "CooperateCouncil": "The Academy",
+    "AppeaseCouncil": "The Protectorate",
+    "SubmitCouncil": "The Servants",
+    "Aliens": "Aliens"
+  }
+}

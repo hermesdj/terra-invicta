@@ -1,0 +1,46 @@
+{
+  "sidebar": {
+    "seeTreeForNode": "Voir Arbre pour ce noeud",
+    "seeEntireTree": "Voir Arbre en Entier",
+    "markDone": "Terminé",
+    "markUndone": "Non Terminé",
+    "summary": "Sommaire",
+    "cost": "Coût : ",
+    "totalTreeCost": "Coût Total : ",
+    "resourceGranted": "Ressource Gagnée : ",
+    "orgGranted": "Organization Obtenue : ",
+    "factionProject": "Project de Faction",
+    "globalResearch": "Recherche Globale",
+    "requiredResearch": "Technologie Requise",
+    "unblockResearch": "Technologies Débloquées",
+    "milestoneNeeded": "Jalons Requis : ",
+    "objectiveRequired": "Objectifs Requis : ",
+    "onlyAvailableToFaction": "Disponible uniquement pour les Factions : ",
+    "requiredNations": "Nations Requises : ",
+    "requiredControlPoints": "Points de Contrôles Requis : ",
+    "effects": "Effets",
+    "completionText": "Description"
+  },
+  "resources": {
+    "metalNoble": "Metaux Nobles",
+    "metal": "Metaux",
+    "volatiles": "Explosifs",
+    "water": "Eau",
+    "fissiles": "Matériaux Fissiles",
+    "missionControl": "Contrôle de Mission"
+  },
+  "effects": {
+    "multiplicative": "multiplicatif",
+    "additive": "Additif"
+  },
+  "factions": {
+    "ResistCouncil": "La Resistance",
+    "DestroyCouncil": "Humanite d'Abord",
+    "ExploitCouncil": "L'Initiative",
+    "EscapeCouncil": "Projet Exodus",
+    "CooperateCouncil": "L'Academie",
+    "AppeaseCouncil": "Le Protectorat",
+    "SubmitCouncil": "Les Serviteurs",
+    "Aliens": "Les Aliens"
+  }
+}

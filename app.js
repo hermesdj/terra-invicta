@@ -2,13 +2,18 @@ let network = null, data = [];
 let nodes = [], lateNodes = [], edges = [], lateEdges = [], techTree = [];
 let projects, techs, effects;
 let techSidebar, searchBox;
-let localizationData = {};
+let localizationData = {
+    en: {},
+    fr: {}
+};
+let selectedLang = 'fr';
 let documentSearchIndex;
 let modules = {};
 
 function draw() {
     const container = document.getElementById("mynetwork");
     const options = {
+        locale: selectedLang,
         layout: {
             hierarchical: {
                 direction: "LR",
@@ -17,7 +22,7 @@ function draw() {
             },
             improvedLayout: false
         },
-        interaction: { dragNodes: false },
+        interaction: {dragNodes: false},
         physics: {
             enabled: false
         },
@@ -78,7 +83,7 @@ function draw() {
     network.on('deselectNode', nodeDeselected);
 
     // Disable selecting edges
-    network.on('click', ({ nodes, edges }) => {
+    network.on('click', ({nodes, edges}) => {
         if (nodes.length == 0 && edges.length > 0) {
             network.setSelection({
                 nodes: [],
@@ -89,7 +94,7 @@ function draw() {
 
     let MIN_ZOOM = 0.35
     let MAX_ZOOM = 2.0
-    let lastZoomPosition = { x: 0, y: 0 }
+    let lastZoomPosition = {x: 0, y: 0}
     network.on("zoom", function (params) {
         let scale = network.getScale()
         if (scale <= MIN_ZOOM) {
@@ -97,14 +102,12 @@ function draw() {
                 position: lastZoomPosition,
                 scale: MIN_ZOOM
             });
-        }
-        else if (scale >= MAX_ZOOM) {
+        } else if (scale >= MAX_ZOOM) {
             network.moveTo({
                 position: lastZoomPosition,
                 scale: MAX_ZOOM,
             });
-        }
-        else {
+        } else {
             lastZoomPosition = network.getViewPosition()
         }
     });
@@ -143,7 +146,7 @@ function nodeSelected(event) {
 
     const sidebar = showSidebar();
 
-    techSidebar.setState({ node: selectedNode });
+    techSidebar.setState({node: selectedNode});
     updateLocationHash(selectedNodeId);
 }
 
@@ -173,66 +176,87 @@ window.onload = init();
 //     }
 // }
 
+function redraw() {
+    hideSidebar();
+    parseDefaults(() => {
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            nodeSelected({nodes: [hash]});
+            network.selectNodes([hash]);
+            network.focus(hash);
+            network.moveTo({
+                scale: 1.0,
+            });
+        }
+    });
+
+    initSidebar();
+}
+
 function init() {
+    i18next.init({
+        lng: selectedLang,
+        defaultNS: 'app',
+        debug: true,
+        resources: {}
+    });
+
+    const fetchLocs = ['en', 'fr'];
     const fetchLocPaths = [
-        'TITechTemplate.en',
-        'TIProjectTemplate.en',
-        'TIEffectTemplate.en',
-        'TIBatteryTemplate.en',
-        'TIDriveTemplate.en',
-        'TIGunTemplate.en',
-        'TIHabModuleTemplate.en',
-        'TIHeatSinkTemplate.en',
-        'TILaserWeaponTemplate.en',
-        'TIMagneticGunTemplate.en',
-        'TIMissileTemplate.en',
-        'TIParticleWeaponTemplate.en',
-        'TIPlasmaWeaponTemplate.en',
-        'TIPowerPlantTemplate.en',
-        'TIRadiatorTemplate.en',
-        'TIShipArmorTemplate.en',
-        'TIShipHullTemplate.en',
-        'TIUtilityModuleTemplate.en',
+        'TITechTemplate',
+        'TIProjectTemplate',
+        'TIEffectTemplate',
+        'TIBatteryTemplate',
+        'TIDriveTemplate',
+        'TIGunTemplate',
+        'TIHabModuleTemplate',
+        'TIHeatSinkTemplate',
+        'TILaserWeaponTemplate',
+        'TIMagneticGunTemplate',
+        'TIMissileTemplate',
+        'TIParticleWeaponTemplate',
+        'TIPlasmaWeaponTemplate',
+        'TIPowerPlantTemplate',
+        'TIRadiatorTemplate',
+        'TIShipArmorTemplate',
+        'TIShipHullTemplate',
+        'TIUtilityModuleTemplate',
     ];
-    let fetchedTexts = [];
 
-    const fetchLocPromises = fetchLocPaths.map(url => fetch("data/" + url).then(res => res.text()));
-    Promise.all(fetchLocPromises).then(results => {
-        results.forEach(result => {
-            parseText(result);
-        });
-    }).then(() => {
-        hideSidebar();
-
-        Promise.all([
-            fetchModule("TITechTemplate.json", "tech", () => {
-                techs = modules.tech;
-            }),
-            fetchModule("TIProjectTemplate.json", "project", () => {
-                projects = modules.project;
-                projects.forEach(project => {
-                    project.isProject = true;
-                });
-            }),
-            fetchModule("TIEffectTemplate.json", "effect", () => {
-                effects = modules.effect;
-            })
-        ]).then(() => {
-            parseDefaults(() => {
-                const hash = window.location.hash.substring(1);
-                if (hash) {
-                    nodeSelected({ nodes: [hash] });
-                    network.selectNodes([hash]);
-                    network.focus(hash);
-                    network.moveTo({
-                        scale: 1.0,
-                    });
-                }
+    Promise.all(fetchLocs.map(lang => {
+        const fetchLocPromises = fetchLocPaths.map(url => fetch(`data/${lang}/${url}.${lang}`).then(res => res.text()));
+        return Promise.all(fetchLocPromises).then(results => {
+            results.forEach(result => {
+                parseText(lang, result);
             });
 
-            initSidebar();
+            i18next.addResourceBundle(lang, 'tech', localizationData[lang]);
+        })
+    }))
+        .then(() => {
+            return Promise.all(fetchLocs.map(lang => fetch(`locales/${lang}.json`).then(res => res.json()).then(result => {
+                i18next.addResourceBundle(lang, 'app', result);
+            })));
+        })
+        .then(() => {
+            return Promise.all([
+                fetchModule("TITechTemplate.json", "tech", () => {
+                    techs = modules.tech;
+                }),
+                fetchModule("TIProjectTemplate.json", "project", () => {
+                    projects = modules.project;
+                    projects.forEach(project => {
+                        project.isProject = true;
+                    });
+                }),
+                fetchModule("TIEffectTemplate.json", "effect", () => {
+                    effects = modules.effect;
+                })
+            ]);
+        })
+        .then(() => {
+            redraw();
         });
-    });
     fetchModule("TIDriveTemplate.json", "drive");
     fetchModule("TIGunTemplate.json", "gun");
     fetchModule("TIHabModuleTemplate.json", "hab");
@@ -284,10 +308,18 @@ function initSearchBox() {
     });
     techTree.forEach((tech, index) => {
         tech.id = index;
-        documentSearchIndex.add(tech);
+        const {
+            displayName,
+            friendlyName
+        } = localizationData[selectedLang] && localizationData[selectedLang][tech.dataName] ? localizationData[selectedLang][tech.dataName] : tech;
+        let searchableTech = {
+            ...tech,
+            friendlyName: displayName || friendlyName
+        };
+        documentSearchIndex.add(searchableTech);
     });
 
-    techSidebar.setState({ techTree: techTree, effects: effects });
+    techSidebar.setState({techTree: techTree, effects: effects});
 }
 
 function clearTree() {
@@ -349,7 +381,7 @@ function parseSpecifiedNodes(group, callback) {
     }, 1);
 }
 
-function parseText(text) {
+function parseText(lang, text) {
     const lines = text.split("\n");
 
     const displayNameRegex = new RegExp("displayName");
@@ -366,18 +398,20 @@ function parseText(text) {
         const keySplit = key.split(".");
         const keyId = keySplit[2];
 
-        if (!localizationData[keyId]) {
-            localizationData[keyId] = {};
+        if (!localizationData[lang][keyId]) {
+            localizationData[lang][keyId] = {};
         }
 
         if (displayNameRegex.test(keySplit[1])) {
-            localizationData[keyId].displayName = value;
+            localizationData[lang][keyId].displayName = value;
         } else if (summaryRegex.test(keySplit[1])) {
-            localizationData[keyId].summary = value;
+            localizationData[lang][keyId].summary = value;
         } else if (descriptionRegex.test(keySplit[1])) {
-            localizationData[keyId].description = value;
+            localizationData[lang][keyId].description = value;
         }
     });
+
+
 }
 
 function getTechIconFile(techCategory) {
@@ -427,19 +461,21 @@ function getTechBorderColor(techCategory) {
 function parseNode(nodeType, dumpAllEdges) {
     nodeType.forEach(tech => {
         let nodeBucket = false;
-        if (tech.repeatable || tech.endGameTech) {
+        if (tech.repeatable) {
             nodeBucket = lateNodes;
         } else {
             nodeBucket = nodes;
         }
 
+        const displayName = i18next.t(`tech:${tech.dataName}.displayName`);
+
         nodeBucket.push({
-            label: "<b>" + tech.friendlyName + "</b>",
+            label: "<b>" + displayName + "</b>",
             id: tech.dataName,
             shape: "circularImage",
             image: getTechIconFile(tech.techCategory),
             level: determineLevel(tech, nodeType),
-            color: { border: getTechBorderColor(tech.techCategory) }
+            color: {border: getTechBorderColor(tech.techCategory)}
         });
 
         let prereqCopy = [];

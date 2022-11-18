@@ -1,7 +1,7 @@
 class TechSidebar extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { node: {}, isolated: false, techTree: props.techTree, effects: props.effects };
+        this.state = {node: {}, isolated: false, techTree: props.techTree, effects: props.effects};
     }
 
     findTechByName(techName) {
@@ -35,23 +35,7 @@ class TechSidebar extends React.Component {
     }
 
     getReadableFactionName(faction) {
-        if (faction === "ResistCouncil") {
-            return "The Resistance";
-        } else if (faction === "DestroyCouncil") {
-            return "Humanity First";
-        } else if (faction === "ExploitCouncil") {
-            return "The Initiative";
-        } else if (faction === "EscapeCouncil") {
-            return "Project Exodus";
-        } else if (faction === "CooperateCouncil") {
-            return "The Academy";
-        } else if (faction === "AppeaseCouncil") {
-            return "The Protectorate";
-        } else if (faction === "SubmitCouncil") {
-            return "The Servants";
-        } else {
-            return "Aliens";
-        }
+        return i18next.t(`app:factions.${faction}`) || "Aliens";
     }
 
     getReadableCountryName(countryCode) {
@@ -63,22 +47,26 @@ class TechSidebar extends React.Component {
     }
 
     getReadableEffect(effect) {
-        const data = this.props.data
-        if (!data[effect] || !data[effect].description) {
+        const data = this.props.data;
+        if (!data[selectedLang][effect] || !data[selectedLang][effect].description) {
             return effect;
         }
         const effectObj = this.findEffectByName(effect);
-        const effectQuantityString = effectObj ?
-            effectObj.value + " (" + effectObj.operation.toLowerCase() + ")" : "";
-        const effectTemplateString = data[effect].description
-            .replace(/^-/g, "")
-            .replace(/\{[0-9]*\}/g, effectQuantityString)
-            .replace('<color=#FFFFFFFF><sprite name="mission_control">', "Mission Control")
-            .replace('<color=#FFFFFFFF><sprite name="water"></color>', "Water")
-            .replace('<color=#FFFFFFFF><sprite name="volatiles"></color>', "Volatiles")
-            .replace('<color=#FFFFFFFF><sprite name="metal"></color>', "Metals")
-            .replace('<color=#FFFFFFFF><sprite name="metal_noble"></color>', "Noble Metals")
-            .replace('<color=#FFFFFFFF><sprite name="radioactive"></color>', "Fissiles");
+        let effectTemplateString = "";
+        if (effectObj) {
+            const value = effectObj.value > 1 ? effectObj.value - 1 : effectObj.value;
+            const effectQuantityString = effectObj ?
+                Intl.NumberFormat(i18next.locale, {style: 'percent'}).format(value) + " (" + i18next.t(`app:effects.${effectObj.operation.toLowerCase()}`) + ")" : "";
+            effectTemplateString = i18next.t(`tech:${effect}.description`)
+                .replace(/^-/g, "")
+                .replace(/\{[0-9]*\}/g, effectQuantityString)
+                .replace(`<color=#FFFFFFFF><sprite name=""mission_control"">"`, i18next.t(`app:resources.missionControl`))
+                .replace(`<color=#FFFFFFFF><sprite name=""water""></color>"`, i18next.t(`app:resources.water`))
+                .replace(`<color=#FFFFFFFF><sprite name=""volatiles""></color>"`, i18next.t(`app:resources.volatiles`))
+                .replace(`<color=#FFFFFFFF><sprite name=""metal""></color>"`, i18next.t(`app:resources.metal`))
+                .replace(`<color=#FFFFFFFF><sprite name=""metal_noble""></color>"`, i18next.t(`app:resources.metalNoble`))
+                .replace(`<color=#FFFFFFFF><sprite name=""radioactive""></color>"`, i18next.t(`app:resources.fissiles`));
+        }
 
 
         return effectTemplateString;
@@ -88,15 +76,17 @@ class TechSidebar extends React.Component {
         const node = this.state.node;
         const data = this.props.data;
 
-        if (!node || !data[node.dataName] || !data[node.dataName].summary) {
+        if (!node || !data[selectedLang][node.dataName] || !data[selectedLang][node.dataName].summary) {
             return "";
         }
 
-        if (data[node.dataName].summary.match(/<.*module>/)) {
+        const text = i18next.t(`tech:${node.dataName}.summary`);
+
+        if (text.match(/<.*module>/)) {
             let summaryElements = [React.createElement(
                 'p',
                 null,
-                data[node.dataName].summary.replace(/<.*module>/, "")
+                text.replace(/<.*module>/, "")
             )];
 
             const dataModules = findModule(node.dataName);
@@ -107,7 +97,7 @@ class TechSidebar extends React.Component {
                     null,
                     React.createElement(
                         'img',
-                        { src: "./icons/" + icon + ".png" }
+                        {src: "./icons/" + icon + ".png"}
                     ),
                     React.createElement(
                         'pre',
@@ -121,7 +111,7 @@ class TechSidebar extends React.Component {
             return React.createElement(
                 'p',
                 null,
-                data[node.dataName].summary
+                i18next.t(`tech:${node.dataName}.summary`)
             );
         }
     }
@@ -138,6 +128,8 @@ class TechSidebar extends React.Component {
             );
         }
 
+        const displayName = i18next.t(`tech:${node.dataName}.displayName`);
+
         const isolateButton = React.createElement(
             MaterialUI.Button,
             {
@@ -151,11 +143,11 @@ class TechSidebar extends React.Component {
                         updateLocationHash(node.dataName);
                     });
 
-                    this.setState({ isolated: true });
+                    this.setState({isolated: true});
                 },
                 className: "topTechbarButton"
             },
-            "See tree for this node"
+            i18next.t(`app:sidebar.seeTreeForNode`)
         );
 
         const seeWholeTreeButton = React.createElement(
@@ -163,7 +155,7 @@ class TechSidebar extends React.Component {
             {
                 variant: "contained",
                 onClick: event => {
-                    this.setState({ isolated: false });
+                    this.setState({isolated: false});
                     const showToggle = searchBox.state.showProjects;
                     if (showToggle) {
                         parseDefaults();
@@ -173,10 +165,10 @@ class TechSidebar extends React.Component {
                 },
                 className: this.state.isolated ? "topTechbarButton" : "hideButton"
             },
-            "See entire tree"
+            i18next.t(`app:sidebar.seeEntireTree`)
         );
 
-        const doneButtonText = node.researchDone ? "Mark undone" : "Mark done";
+        const doneButtonText = node.researchDone ? i18next.t('app:sidebar.markUndone') : i18next.t('app:sidebar.markDone');
         const markDone = React.createElement(
             MaterialUI.Button,
             {
@@ -188,7 +180,7 @@ class TechSidebar extends React.Component {
                         node.researchDone = true;
                         this.getAncestorTechs(node).forEach(tech => tech.researchDone = true);
                     }
-                    this.setState({ node: node });
+                    this.setState({node: node});
                 },
                 className: "topTechbarButton",
                 color: node.researchDone ? "error" : "success"
@@ -196,19 +188,17 @@ class TechSidebar extends React.Component {
             doneButtonText
         );
 
-        const friendlyName = node.friendlyName;
-
         const summaryLabel = React.createElement(
             "h4",
             null,
-            "Summary"
+            i18next.t('app:sidebar.summary')
         );
         const summaryText = this.getReadableSummary();
 
         const researchCost = node.researchCost ? node.researchCost : 0;
         const ancestorTree = this.getAncestorTechs(node);
         const ancestorTreeIds = ancestorTree.map(o => o.id);
-        const uniqueAncestorTree = ancestorTree.filter(({ id }, index) => !ancestorTreeIds.includes(id, index + 1));
+        const uniqueAncestorTree = ancestorTree.filter(({id}, index) => !ancestorTreeIds.includes(id, index + 1));
         const ancestorTreeProcessed = uniqueAncestorTree.filter(tech => !tech.researchDone);
 
         const treeCost = uniqueAncestorTree.reduce((acc, curr) => acc + (curr.researchCost ? curr.researchCost : 0), 0)
@@ -220,12 +210,12 @@ class TechSidebar extends React.Component {
         const costText = [React.createElement(
             'h4',
             null,
-            "Cost: ",
+            i18next.t('app:sidebar.cost'),
             researchCost.toLocaleString()
         ), React.createElement(
             'h5',
             null,
-            "Total Tree Cost: ",
+            i18next.t('app:sidebar.totalTreeCost'),
             treeCostString
         )];
 
@@ -239,7 +229,7 @@ class TechSidebar extends React.Component {
             resourceLabel = React.createElement(
                 "h4",
                 null,
-                "Resources Granted"
+                i18next.t('app:sidebar.resourceGranted')
             );
 
             resourceText = React.createElement(
@@ -254,7 +244,7 @@ class TechSidebar extends React.Component {
             org = React.createElement(
                 "h4",
                 null,
-                "Org granted: ",
+                i18next.t('app:sidebar.orgGranted'),
                 node.orgGranted
             );
         }
@@ -264,13 +254,14 @@ class TechSidebar extends React.Component {
             let prereqElements = [];
             node.prereqs.filter(prereq => prereq !== "").forEach(prereq => {
                 let tech = this.findTechByName(prereq);
+                const localizedName = tech ? i18next.t(`tech:${tech.dataName}.displayName`) : null;
                 prereqElements.push(
                     React.createElement(
                         MaterialUI.Button,
                         {
                             key: prereq,
                             onClick: () => {
-                                this.setState({ node: tech });
+                                this.setState({node: tech});
                                 network.selectNodes([prereq]);
                                 network.focus(prereq);
                                 updateLocationHash(prereq);
@@ -278,11 +269,11 @@ class TechSidebar extends React.Component {
                             variant: "contained",
                             className: "prereqButton" + (tech.researchDone ? " researchDone" : ""),
                             size: "small",
-                            title: tech.isProject ? "Faction Project" : "Global Research",
-                            'aria-label': tech ? (tech.friendlyName + " "  + (tech.isProject ? "Faction Project" : "Global Research")) : "",
+                            title: tech.isProject ? i18next.t('app:sidebar.factionProject') : i18next.t('app:sidebar.globalResearch'),
+                            'aria-label': tech ? (tech.friendlyName + " " + (tech.isProject ? i18next.t('app:sidebar.factionProject') : i18next.t('app:sidebar.globalResearch'))) : "",
                             color: tech.isProject ? "success" : "primary"
                         },
-                        tech ? tech.friendlyName : ""
+                        localizedName || ""
                     )
                 );
             });
@@ -291,12 +282,12 @@ class TechSidebar extends React.Component {
             prereqsText = React.createElement(
                 "h4",
                 null,
-                "Required Research"
+                i18next.t('app:sidebar.requiredResearch')
             );
 
             prereqsList = React.createElement(
                 "div",
-                { className: "hideBullets" },
+                {className: "hideBullets"},
                 prereqElements
             );
         }
@@ -306,13 +297,14 @@ class TechSidebar extends React.Component {
         if (blockingTechs.length > 0) {
             let blockerElements = [];
             blockingTechs.forEach(blocked => {
+                const localizedName = blocked ? i18next.t(`tech:${blocked.dataName}.displayName`) : "";
                 blockerElements.push(
                     React.createElement(
                         MaterialUI.Button,
                         {
                             key: blocked.dataName,
                             onClick: () => {
-                                this.setState({ node: blocked });
+                                this.setState({node: blocked});
                                 if (network.body.nodes[blocked.dataName]) {
                                     network.selectNodes([blocked.dataName]);
                                     network.focus(blocked.dataName);
@@ -322,13 +314,12 @@ class TechSidebar extends React.Component {
                             variant: "contained",
                             className: "prereqButton",
                             size: "small",
-                            title: blocked.isProject ? "Faction Project" : "Global Research",
-                            'aria-label': blocked ? (blocked.friendlyName + " "  + (blocked.isProject ? "Faction Project" : "Global Research")) : "",
+                            title: blocked.isProject ? i18next.t('app:sidebar.factionProject') : i18next.t('app:sidebar.globalResearch'),
+                            'aria-label': blocked ? (blocked.friendlyName + " " + (blocked.isProject ? i18next.t('app:sidebar.factionProject') : i18next.t('app:sidebar.globalResearch'))) : "",
                             color: blocked.isProject ? "success" : "primary"
                         },
-                        blocked.friendlyName
+                        localizedName
                     )
-
                 );
             });
 
@@ -336,12 +327,12 @@ class TechSidebar extends React.Component {
             blockingText = React.createElement(
                 "h4",
                 null,
-                "Unblocks Research"
+                i18next.t('app:sidebar.unblockResearch')
             );
 
             blockingList = React.createElement(
                 "div",
-                { className: "hideBullets" },
+                {className: "hideBullets"},
                 blockerElements
             );
         }
@@ -351,7 +342,7 @@ class TechSidebar extends React.Component {
             milestones = React.createElement(
                 "h4",
                 null,
-                "Milestones Needed: ",
+                i18next.t('app:sidebar.milestoneNeeded'),
                 node.requiredMilestone
             );
         }
@@ -363,7 +354,7 @@ class TechSidebar extends React.Component {
             requiredObjectives = React.createElement(
                 "h4",
                 null,
-                "Objectives Required: ",
+                i18next.t('app:sidebar.objectiveRequired'),
                 objString
             );
         }
@@ -376,7 +367,7 @@ class TechSidebar extends React.Component {
             factionReq = React.createElement(
                 "h4",
                 null,
-                "Only Available to Factions: ",
+                i18next.t('app:sidebar.onlyAvailableToFaction'),
                 factionString
             );
         }
@@ -386,7 +377,7 @@ class TechSidebar extends React.Component {
             nationReq = React.createElement(
                 "h4",
                 null,
-                "Required Nations: ",
+                i18next.t('app:sidebar.requiredNations'),
                 node.requiresNation
             );
         }
@@ -398,7 +389,7 @@ class TechSidebar extends React.Component {
             regionReq = React.createElement(
                 "h4",
                 null,
-                "Required Control Points: ",
+                i18next.t('app:sidebar.requiredControlPoints'),
                 regionString
             );
         }
@@ -408,7 +399,7 @@ class TechSidebar extends React.Component {
             let effectElements = node.effects.filter(effect => effect !== "").map(effect => {
                 return React.createElement(
                     "li",
-                    { key: effect },
+                    {key: effect},
                     this.getReadableEffect(effect)
                 );
             });
@@ -416,7 +407,7 @@ class TechSidebar extends React.Component {
             effectDescription = React.createElement(
                 "h4",
                 null,
-                "Effects"
+                i18next.t('app:sidebar.effects')
             );
             effectList = React.createElement(
                 "ul",
@@ -430,7 +421,7 @@ class TechSidebar extends React.Component {
             completionLabel = React.createElement(
                 'h4',
                 null,
-                "Completion Text"
+                i18next.t('app:sidebar.completionText')
             );
 
             completionText = React.createElement(
@@ -442,7 +433,7 @@ class TechSidebar extends React.Component {
 
         return React.createElement(
             MaterialUI.Paper,
-            { elevation: 3, id: "sidebar-react" },
+            {elevation: 3, id: "sidebar-react"},
 
             // Controls
             isolateButton,
@@ -453,7 +444,7 @@ class TechSidebar extends React.Component {
             React.createElement(
                 "h2",
                 null,
-                friendlyName
+                displayName
             ),
             costText,
 
